@@ -7,6 +7,7 @@ const specs = [
   { label: 'Endurance', value: '1,700 TBW' },
 ];
 
+
 const highlights = [
   'High-performance enterprise storage for data-intensive workloads',
   'Advanced 176-layer NAND for lower latency and improved efficiency',
