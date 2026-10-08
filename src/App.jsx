@@ -1,27 +1,7 @@
-const specs = [
-  { label: 'Capacity', value: '1.92 TB' },
-  { label: 'Interface', value: 'PCIe 4.0 x4 NVMe' },
-  { label: 'Sequential Read', value: '7,000 MB/s' },
-  { label: 'Sequential Write', value: '6,000 MB/s' },
-  { label: 'Form Factor', value: 'M.2 2280' },
-  { label: 'Endurance', value: '1,700 TBW' },
-];
-
-
-const highlights = [
-  'High-performance enterprise storage for data-intensive workloads',
-  'Advanced 176-layer NAND for lower latency and improved efficiency',
-  'Built for AI, virtualization, and multi-cloud environments',
-  'Reliable firmware and robust thermal management for sustained performance',
-];
-
-const features = [
-  { title: 'Low Latency', detail: 'Optimized for read-heavy database and analytic workloads.' },
-  { title: 'Enhanced Reliability', detail: 'Enterprise-class endurance and power-loss protection.' },
-  { title: 'Simplified Deployment', detail: 'Compatible with modern server platforms and hyperscale infrastructure.' },
-];
+import { productData } from './productData.js';
 
 function App() {
+  const product = productData;
   return (
     <div className="page-shell">
       <header className="topbar">
@@ -43,8 +23,8 @@ function App() {
       <main>
         <section className="hero" id="overview">
           <div className="hero-copy">
-            <span className="pill">Enterprise SSD</span>
-            <h2>Micron 7450 NVMe SSD</h2>
+            <span className="pill">{product.category}</span>
+            <h2>{product.productName}</h2>
             <p className="lead">
               Built for modern data centers, the Micron 7450 combines high throughput,
               predictable latency, and exceptional endurance for mission-critical applications.
@@ -53,7 +33,7 @@ function App() {
             <div className="price-row">
               <div>
                 <span className="label">Starting at</span>
-                <strong>$299.99</strong>
+                <strong>{product.startingPrice}</strong>
               </div>
               <button className="primary-btn">Buy Now</button>
             </div>
@@ -68,7 +48,7 @@ function App() {
                 <small>Capacity</small>
               </li>
               <li>
-                <span>5 yrs</span>
+                <span>{product.warranty}</span>
                 <small>Warranty</small>
               </li>
             </ul>
@@ -90,7 +70,7 @@ function App() {
             <p className="section-kicker">Why it matters</p>
             <h3>Purpose-built performance for data growth</h3>
             <ul className="check-list">
-              {highlights.map((item) => (
+              {product.highlights.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
@@ -116,7 +96,7 @@ function App() {
           </div>
 
           <div className="spec-grid">
-            {specs.map((spec) => (
+            {product.specs.map((spec) => (
               <div key={spec.label} className="spec-item">
                 <span>{spec.label}</span>
                 <strong>{spec.value}</strong>
@@ -132,7 +112,7 @@ function App() {
           </div>
 
           <div className="feature-grid">
-            {features.map((feature) => (
+            {product.features.map((feature) => (
               <article key={feature.title} className="feature-card">
                 <div className="feature-icon">✓</div>
                 <h4>{feature.title}</h4>
