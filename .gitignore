@@ -3,9 +3,6 @@
 /.pnp
 .pnp.js
 
-# production
-/dist
-
 # misc
 .DS_Store
 .env
@@ -28,7 +25,7 @@ yarn-error.log*
 .idea/
 
 # build
-build/
+# build/
 
 # Mac
 *.DS_Store
