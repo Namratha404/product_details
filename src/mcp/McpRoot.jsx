@@ -6,6 +6,83 @@ function McpRoot() {
   const [message, setMessage] = useState('Connecting to MCP host...');
   const [toolData, setToolData] = useState(null);
 
+  function parseToolResult(result) {
+    // Prefer structuredContent when available
+    const structured = result?.structuredContent ?? null;
+    if (structured) {
+      // Handle MCP artifact view responses by mapping them to the product shape
+      if (structured.view === 'artifact' && structured.data?.product) {
+        const p = structured.data.product;
+        return {
+          productName: p.name,
+          category: p.status ?? 'Product',
+          specs: structured.data.specs ?? [],
+          highlights: structured.data.highlights ?? [],
+          features: structured.data.features ?? [],
+        };
+      }
+      return structured;
+    }
+
+    // Fallback: try to parse JSON from content/text fields
+    try {
+      const content = result?.content ?? result?.contents ?? null;
+      if (Array.isArray(content) && content.length > 0) {
+        for (const item of content) {
+          const text = item?.text ?? item?.body ?? null;
+          if (typeof text === 'string') {
+            const trimmed = text.trim();
+            if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+              return JSON.parse(trimmed);
+            }
+            // try to parse even if not wrapped
+            try {
+              return JSON.parse(text);
+            } catch {}
+          }
+        }
+      }
+
+      // Some SDKs return a top-level text property
+      const topText = result?.text ?? result?.message ?? null;
+      if (typeof topText === 'string') {
+        const t = topText.trim();
+        if ((t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'))) {
+          const parsedTop = JSON.parse(t);
+          if (parsedTop?.view === 'artifact' && parsedTop.data?.product) {
+            const p = parsedTop.data.product;
+            return {
+              productName: p.name,
+              category: p.status ?? 'Product',
+              specs: parsedTop.data.specs ?? [],
+              highlights: parsedTop.data.highlights ?? [],
+              features: parsedTop.data.features ?? [],
+            };
+          }
+          return parsedTop;
+        }
+        try {
+          const parsedTop = JSON.parse(topText);
+          if (parsedTop?.view === 'artifact' && parsedTop.data?.product) {
+            const p = parsedTop.data.product;
+            return {
+              productName: p.name,
+              category: p.status ?? 'Product',
+              specs: parsedTop.data.specs ?? [],
+              highlights: parsedTop.data.highlights ?? [],
+              features: parsedTop.data.features ?? [],
+            };
+          }
+          return parsedTop;
+        } catch {}
+      }
+    } catch (e) {
+      console.warn('Failed to parse tool result as JSON', e);
+    }
+
+    return null;
+  }
+
   const { app, isConnected, error } = useApp({
     appInfo: {
       name: 'Micron Product MCP App',
@@ -14,9 +91,9 @@ function McpRoot() {
     capabilities: {},
     onAppCreated: (appInstance) => {
       appInstance.ontoolresult = (result) => {
-        const structured = result?.structuredContent ?? null;
-        setToolData(structured);
-        setMessage('Product information loaded via MCP.');
+        const parsed = parseToolResult(result);
+        setToolData(parsed);
+        setMessage(parsed ? 'Product information loaded via MCP.' : 'Received tool result (no structured data).');
       };
 
       appInstance.ontoolinput = () => {
@@ -37,9 +114,13 @@ function McpRoot() {
           arguments: {},
         });
 
-        const structured = result?.structuredContent ?? null;
-        setToolData(structured);
-        setMessage('Product details loaded successfully.');
+        const parsed = parseToolResult(result);
+        if (parsed) {
+          setToolData(parsed);
+          setMessage('Product details loaded successfully.');
+        } else {
+          setMessage('Product details received but no structured data found.');
+        }
       } catch (err) {
         console.error('MCP tool call failed:', err);
         setMessage('Unable to load product data from the MCP host.');
