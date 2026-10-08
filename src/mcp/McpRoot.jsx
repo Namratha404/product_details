@@ -10,15 +10,15 @@ function McpRoot() {
     // Prefer structuredContent when available
     const structured = result?.structuredContent ?? null;
     if (structured) {
-      // Handle MCP artifact view responses by mapping them to the product shape
-      if (structured.view === 'artifact' && structured.data?.product) {
+      const viewId = structured.viewId ?? structured.view;
+      if ((viewId === 'product-details' || viewId === 'artifact') && structured.data?.product) {
         const p = structured.data.product;
         return {
-          productName: p.name,
-          category: p.status ?? 'Product',
-          specs: structured.data.specs ?? [],
-          highlights: structured.data.highlights ?? [],
-          features: structured.data.features ?? [],
+          productName: p.name ?? productData.productName,
+          category: p.status ?? productData.category,
+          specs: structured.data.specs ?? productData.specs,
+          highlights: structured.data.highlights ?? productData.highlights,
+          features: structured.data.features ?? productData.features,
         };
       }
       return structured;

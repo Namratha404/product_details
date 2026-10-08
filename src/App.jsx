@@ -1,7 +1,7 @@
 import { productData } from './productData.js';
 
-function App() {
-  const product = productData;
+function App({ mcpApp = null, mcpData = null }) {
+  const product = mcpData ?? productData;
   return (
     <div className="page-shell">
       <header className="topbar">
