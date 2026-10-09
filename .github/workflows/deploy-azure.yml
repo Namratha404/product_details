@@ -29,6 +29,25 @@ jobs:
       - name: Build MCP single-file widget
         run: npm run build:mcp
 
+      - name: Verify Azure token and build output
+        run: |
+          if [ -z "${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}" ]; then
+            echo "ERROR: AZURE_STATIC_WEB_APPS_API_TOKEN is not set"
+            exit 1
+          fi
+
+          if [ ! -d dist ]; then
+            echo "ERROR: dist folder does not exist"
+            exit 1
+          fi
+
+          if [ ! -f dist/mcp.html ]; then
+            echo "ERROR: dist/mcp.html was not generated"
+            exit 1
+          fi
+
+          echo "Azure token is configured and dist/mcp.html exists"
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
